@@ -18,7 +18,26 @@ I'm also not keen on trying to pioneer an upstream project for porting git
 propper's xdiff to rust since I'm not sure I have the time or expertise to
 follow through on a project like that.
 
-Franky, for my origional goal, this is the entirly wrong way to go about things.
+Franky, for my original goal, this is the entirly wrong way to go about things.
+
+## Porting methodology
+
+The initial goal is to port as faithfully as possible in a safe manner.
+
+-   pointers to other structs get represented as `Rc<T>` initially
+    -   They may be changed to `Rc<RefCell<T>>` if required.
+    -   They may be wrapped in `Option` if nullability is required.
+-   c-style arrays should be represented with `Vec` structures.
+    -   Linked lists ought to remain untouched initially.
+
+The choice of using `Rc` means that there is more work done than the c
+alternative. These can almost certainly be refactored out to be references with
+the right lifetimes, but it is an easier starting point to work with reference
+counted data first, before moving to a borrow checked solution.
+
+Using `RefCell` which provides run-time checked mutablity constraints is also
+not ideal, but it means we can better scope mutability removals compared to also
+just having references and having `mut` leak everywhere.
 
 ## Goals
 
